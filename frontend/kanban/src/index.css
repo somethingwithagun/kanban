@@ -1,0 +1,424 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Dark Autumn/Coffee Palette */
+  --bg-color: #1a1614;           
+  --surface-color: #26201c;      
+  --column-bg: #2c2420;          
+  --card-bg: #382e29;            
+  
+  --text-primary: #efebe9;       
+  --text-secondary: #bcaaa4;     
+  --text-muted: #8d6e63;         
+  
+  --accent-primary: #d84315;     
+  --accent-hover: #bf360c;       
+  --accent-gold: #ffb74d;        
+  
+  --border-color: #4e342e;       
+  
+  --border-radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  height: 100dvh; 
+  width: 100vw;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+.app-container {
+  padding: 1rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* Buttons */
+button {
+  background-color: var(--accent-primary);
+  color: #fff;
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+button:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+button.secondary {
+  background-color: transparent;
+  border: 1px solid var(--text-muted);
+  color: var(--text-secondary);
+}
+
+button.secondary:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+button.icon-btn {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+}
+button.icon-btn:hover {
+  color: var(--accent-gold);
+  background: rgba(255, 183, 77, 0.1);
+}
+
+/* Inputs */
+input, select, textarea {
+  padding: 12px;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: var(--border-radius);
+  font-family: 'JetBrains Mono', monospace;
+  width: 100%;
+  font-size: 1rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+}
+
+/* --- Header --- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+h1 {
+  color: var(--accent-gold);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* --- Admin Bar --- */
+.admin-bar {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  padding: 0.8rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.admin-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* --- Kanban Board Structure --- */
+.board-container {
+  flex: 1;
+  min-height: 0; 
+  display: flex;
+  flex-direction: column;
+}
+
+.kanban-board {
+  display: flex;
+  gap: 15px;
+  height: 100%;
+  padding-bottom: 5px;
+  align-items: flex-start;
+}
+
+/* Column Base Styles */
+.column {
+  background-color: var(--column-bg);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--border-radius);
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+/* Task Drop Target */
+.column.drag-target {
+  border: 2px dashed var(--accent-gold);
+  background-color: rgba(255, 183, 77, 0.05);
+}
+
+/* Column Reorder Drop Target */
+.column.column-drag-target {
+  border: 2px dashed var(--accent-primary); /* Different color to distinguish form task drop */
+  opacity: 0.8;
+  background-color: rgba(216, 67, 21, 0.05);
+}
+
+.column-header {
+  padding: 12px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  cursor: grab;
+  background-color: rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+.task-list {
+  padding: 10px;
+  /* Task list scroll behavior depends on layout mode */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Task Card */
+.task-card {
+  background-color: var(--card-bg);
+  padding: 12px;
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: grab;
+  color: var(--text-primary);
+  transition: transform 0.1s;
+}
+
+.task-card:hover {
+  border-left-color: var(--accent-gold);
+}
+
+.task-card.dragging {
+  opacity: 0.5;
+  border: 2px dashed var(--accent-gold);
+  background: transparent;
+}
+
+.task-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  word-break: break-word;
+}
+
+.task-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 8px;
+}
+
+.assignee-badge {
+  background: var(--border-color);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-weight: bold;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Responsive Logic --- */
+
+/* Desktop Mode (>= 1000px): Columns expanded horizontally */
+@media (min-width: 1000px) {
+  .kanban-board {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .column {
+    flex: 1;             /* Expand to fill width */
+    min-width: 300px;    /* But don't get too small */
+    height: 100%;        /* Fill board height */
+    overflow: hidden;    /* Contain internal scroll */
+  }
+
+  .task-list {
+    overflow-y: auto;    /* Scroll tasks internally */
+    flex: 1;
+    height: 100%;
+  }
+}
+
+/* Mobile/Tablet Mode (< 1000px): Stack vertically */
+@media (max-width: 999px) {
+  .kanban-board {
+    flex-direction: column;
+    overflow-y: auto;    /* Scroll the whole board vertically */
+    overflow-x: hidden;
+  }
+
+  .column {
+    width: 100%;
+    min-width: 0;
+    height: auto;        /* Height determined by content */
+    flex-shrink: 0;
+    max-height: none;    /* Let column grow */
+  }
+
+  .task-list {
+    overflow-y: visible; /* Show all tasks, let board scroll */
+    height: auto;
+  }
+}
+
+/* Small Mobile tweaks */
+@media (max-width: 600px) {
+  .app-container {
+    padding: 0.8rem;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .header-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .admin-bar {
+    flex-direction: column;
+  }
+  
+  .admin-group input {
+    flex-grow: 1;
+  }
+}
+
+/* Login Screen Styles */
+.login-screen {
+  background-color: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+}
+
+.login-card {
+  background: var(--surface-color);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  width: 100%;
+  max-width: 380px;
+  border: 1px solid var(--border-color);
+}
+
+.login-tabs {
+  display: flex;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px;
+  color: var(--text-muted);
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  font-size: 1rem;
+  margin-bottom: -2px;
+}
+
+.tab-btn.active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top:0; left:0; right:0; bottom:0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--surface-color);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid var(--accent-gold);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  max-height: 90vh;
+  overflow-y: auto;
+}
