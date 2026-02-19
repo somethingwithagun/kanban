@@ -21,6 +21,11 @@ rooms: Dict[str, dict] = {}
 # --- Models ---
 class CreateRoomRequest(BaseModel):
     admin_name: str
+    password: str # New field
+
+class AdminLoginRequest(BaseModel):
+    room_code: str
+    password: str
 
 class JoinRoomRequest(BaseModel):
     room_code: str
@@ -31,14 +36,14 @@ class TaskCreate(BaseModel):
     description: str = ""
     status: str
     assignee: str = "Unassigned"
-    category: str = "General"  # New field
+    category: str = "General"
 
 class TaskEdit(BaseModel):
     task_id: str
     title: str
     description: str
     assignee: str
-    category: str  # New field
+    category: str
 
 class MoveTask(BaseModel):
     task_id: str
@@ -60,7 +65,6 @@ class DeleteColumn(BaseModel):
 class ReorderColumns(BaseModel):
     columns: List[str]
 
-# New Models for Categories
 class AddCategory(BaseModel):
     category_name: str
 
@@ -91,14 +95,33 @@ def create_room(req: CreateRoomRequest):
     rooms[room_code] = {
         "title": "New Kanban Room",
         "admin_id": admin_id,
+        "password": req.password, # Store password
         "users": {
             admin_id: {"name": req.admin_name, "role": "admin", "approved": True}
         },
-        "columns": ["Upcoming", "In Progress", "Done"],
-        "categories": ["General"], # Default categories
+        "columns": ["Upcoming", "Processing", "Ended"],
+        "categories": ["General", "Bug", "Feature"],
         "tasks": {} 
     }
     return {"room_code": room_code, "user_id": admin_id, "role": "admin"}
+
+@app.post("/login_admin")
+def login_admin(req: AdminLoginRequest):
+    if req.room_code not in rooms:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    room = rooms[req.room_code]
+    
+    # Simple password check
+    if room.get("password") != req.password:
+        raise HTTPException(status_code=401, detail="Incorrect Password")
+    
+    # Return the existing admin ID so they resume their session
+    return {
+        "user_id": room["admin_id"], 
+        "room_code": req.room_code,
+        "role": "admin"
+    }
 
 @app.post("/join_room")
 def join_room(req: JoinRoomRequest):
@@ -122,7 +145,7 @@ def get_room_state(user=Depends(get_user_from_header)):
     return {
         "title": room['title'],
         "columns": room['columns'],
-        "categories": room.get('categories', ["General"]), # Send categories
+        "categories": room.get('categories', ["General"]),
         "tasks": list(room['tasks'].values()),
         "users": [
             {"id": uid, "name": u["name"], "approved": u["approved"], "role": u["role"]}
@@ -131,6 +154,7 @@ def get_room_state(user=Depends(get_user_from_header)):
         "is_admin": user['id'] == room['admin_id']
     }
 
+# --- Standard Operations (No changes needed below here) ---
 @app.post("/approve_user/{target_user_id}")
 def approve_user(target_user_id: str, user=Depends(get_user_from_header)):
     room = rooms[user['room_code']]
@@ -148,7 +172,6 @@ def update_room_title(req: UpdateRoom, user=Depends(get_user_from_header)):
     room['title'] = req.title
     return {"status": "updated"}
 
-# --- Column Management ---
 @app.post("/add_column")
 def add_column(req: AddColumn, user=Depends(get_user_from_header)):
     room = rooms[user['room_code']]
@@ -177,7 +200,6 @@ def reorder_columns(req: ReorderColumns, user=Depends(get_user_from_header)):
         room['columns'] = req.columns
     return room['columns']
 
-# --- Category Management ---
 @app.post("/add_category")
 def add_category(req: AddCategory, user=Depends(get_user_from_header)):
     room = rooms[user['room_code']]
@@ -196,16 +218,13 @@ def delete_category(req: DeleteCategory, user=Depends(get_user_from_header)):
     current_cats = room.get('categories', [])
     if req.category_name in current_cats:
         current_cats.remove(req.category_name)
-        # Update tasks with this category to "General" or empty
         for task in room['tasks'].values():
             if task.get('category') == req.category_name:
                 task['category'] = "General"
-                
         room['categories'] = current_cats
             
     return room['categories']
 
-# --- Task Management ---
 @app.post("/create_task")
 def create_task(req: TaskCreate, user=Depends(get_user_from_header)):
     if not user['approved']:
@@ -220,7 +239,7 @@ def create_task(req: TaskCreate, user=Depends(get_user_from_header)):
         "status": req.status,
         "author": user['name'],
         "assignee": req.assignee,
-        "category": req.category 
+        "category": req.category
     }
     room['tasks'][task_id] = new_task
     return new_task

@@ -3,7 +3,7 @@ import Login from './components/Login';
 import Board from './components/Board';
 import AdminPanel from './components/AdminPanel';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://legendary-space-train-x7v9xj6w9xxcp77v-8000.app.github.dev';
 
 function App() {
   const [credentials, setCredentials] = useState({
