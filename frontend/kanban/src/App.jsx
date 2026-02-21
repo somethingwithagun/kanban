@@ -3,8 +3,10 @@ import Login from './components/Login';
 import Board from './components/Board';
 import AdminPanel from './components/AdminPanel';
 
-const API_URL = import.meta.env.API_URL 
-  ? import.meta.env.API_URL : 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL : 'http://localhost:8000';
+
+console.log(API_URL)
 
 function App() {
   const [credentials, setCredentials] = useState({
