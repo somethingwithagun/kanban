@@ -5,6 +5,7 @@ from uuid import uuid4
 import random
 import string
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 app = FastAPI()
 
@@ -101,8 +102,8 @@ def create_room(req: CreateRoomRequest):
         "users": {
             admin_id: {"name": req.admin_name, "role": "admin", "approved": True}
         },
-        "columns": ["Upcoming", "Processing", "Ended"],
-        "categories": ["General", "Bug", "Feature"],
+        "columns": ["Upcoming", "In Progress", "Done"],
+        "categories": ["General"],
         "tasks": {} 
     }
     return {"room_code": room_code, "user_id": admin_id, "role": "admin"}
